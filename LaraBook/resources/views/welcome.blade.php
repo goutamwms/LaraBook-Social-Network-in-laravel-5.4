@@ -9,13 +9,15 @@
         <script src="https://use.fontawesome.com/595a5020bd.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
-        <!-- Styles -->
         <style>
             html, body {
                 background-color: #ddd;
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
                 margin: 0;
+            }
+            .top_bar{
+              position:relative; width:99%; top:0; padding:5px; margin:0 5
             }
             .full-height {
               margin-top:50px
@@ -30,8 +32,11 @@
             }
             .top-right {
                 position: absolute;
-                right: 10px;
-                top: 18px;
+                right:5px; top:15px
+            }
+            .top-left {
+                position: absolute;
+                width:40%
 
             }
             .content {
@@ -62,9 +67,10 @@
             }
             .left-sidebar, .right-sidebar{
               background-color:#fff;
-              min-height:100%
+              height:600px;
+
             }
-            .posts_div{margin-bottom:10px !important}
+            .posts_div{margin-bottom:10px !important;}
             .posts_div h3{
               margin-top:4px !important;
 
@@ -88,28 +94,68 @@
               background-color: #eceeef;}
               .user_name{font-size:18px;
                font-weight:bold; text-transform:capitalize; margin:3px}
-              .all_posts{background-color:#fff; padding:15px;
+              .all_posts{background-color:#fff; padding:5px;
                margin-bottom:15px; border-radius:5px;
                 -webkit-box-shadow: 0 8px 6px -6px #666;
   	            -moz-box-shadow: 0 8px 6px -6px #666;
   	             box-shadow: 0 8px 6px -6px #666;}
+                #commentBox{
+                  background-color:#ddd;
+                  padding:10px;
+                  width:99%; margin:0 auto;
+                  background-color:#F6F7F9;
+                  padding:10px;
+                  margin-bottom:10px
+                }
+                #commentBox li { list-style:none; padding:10px; border-bottom:1px solid #ddd}
+                .commet_form{ padding:10px; margin-bottom:10px}
+                .commentHand{color:blue}
+                .commentHand:hover{cursor:pointer}
+                .upload_wrap{
+                  position:relative;
+                  display:inline-block;
+                  width:100%
+                }
+                .center-con{
+                  max-height:600px;
+                  position: absolute;
+                  left:calc(25%);
+                  overflow-y: scroll;
+                }
+                @media (min-width: 268px) and (max-width: 768px) {
 
-#commentBox{
-  background-color:#ddd; 
-  padding:10px; 
-  width:99%; margin:0 auto;
-  background-color:#F6F7F9;  
-  padding:10px;
-  margin-bottom:10px
-}
-#commentBox li { list-style:none; padding:10px; border-bottom:1px solid #ddd}
-.commet_form{ padding:10px; margin-bottom:10px}
+                  .center-con{
+                    max-height:600px;
+                    position: relative;
+                    left:0px;
+                    overflow-y: scroll;
+                  }
+                }
+
+
         </style>
 
     </head>
     <body>
-      @if (Route::has('login'))
-          <div class="top-right links">
+<div id="app">
+<div class="top_bar" >
+
+      <div class="top-left links" style="float:left">
+        <input type="text" class="form-control"
+        placeholder="what are you looking for?"
+        v-model="qry" v-on:Keyup="autoComplete"/>
+        <div class="panel-footer" v-if="results.length"
+        style="position:relative; z-index:1000; border:1px solid #ccc;
+        background:#fff;">
+          <p v-for="result in results">
+            <a :href="'{{url('profile')}}/' +  result.slug">
+              <b>@{{result.name}} </b>
+            </a>
+          </p>
+        </div>
+      </div>
+
+          <div class="top-right links" style="float:right">
               @if (Auth::check())
               <a href="{{url('jobs')}}" style="background-color:#283E4A;
               color:#fff; padding:5px 15px 5px 15px; border-radius:5px">Find Job</a>
@@ -122,172 +168,266 @@
                   <a href="{{ url('/register') }}">Register</a>
               @endif
           </div>
-      @endif
-        <div class="flex-center position-ref full-height">
+
+    </div>
+
+<div class="flex-center position-ref full-height">
 
 
 
-<div class="col-md-12"  id="app">
-
-
-  <div class="col-md-3 left-sidebar hidden-xs hidden-sm">
+  <div class="col-md-12 "  >
 @if(Auth::check())
-   <ul>
-     <li>
-       <a href="{{ url('/profile') }}/{{Auth::user()->slug}}"> <img src="{{Config::get('app.url')}}/public/img/{{Auth::user()->pic}}"
-       width="32" style="margin:5px"  />
-       {{Auth::user()->name}}</a>
-     </li>
-     <li>
-       <a href="{{url('/')}}"> <img src="{{Config::get('app.url')}}/public/img/news_feed.png"
-       width="32" style="margin:5px"  />
-       News Feed</a>
-     </li>
-     <li>
-       <a href="{{url('/friends')}}"> <img src="{{Config::get('app.url')}}/public/img/friends.png"
-       width="32" style="margin:5px"  />
-       Friends </a>
-     </li>
-     <li>
-       <a href="{{url('/messages')}}"> <img src="{{Config::get('app.url')}}/public/img/msg.png"
-       width="32" style="margin:5px"  />
-      Messages</a>
-     </li>
-     <li>
-       <a href="{{url('/findFriends')}}"> <img src="{{Config::get('app.url')}}/public/img/friends.png"
-       width="32" style="margin:5px"  />
-      Find Friends</a>
-     </li>
+    <!-- left side start -->
+    <div class="col-md-3 left-sidebar hidden-xs hidden-sm" style="position:fixed; left:10px">
 
-     <li>
-       <a href="{{url('/jobs')}}"> <img src="{{Config::get('app.url')}}/public/img/jobs.png"
-       width="32" style="margin:5px"  />
-      Find Jobs</a>
-     </li>
-   </ul>
-   @endif
+     <ul>
+       <li>
+         <a href="{{ url('/profile') }}/{{Auth::user()->slug}}"> <img src="{{Config::get('app.url')}}/public/img/{{Auth::user()->pic}}"
+         width="32" style="margin:5px"  />
+         {{Auth::user()->name}}</a>
+       </li>
+       <li>
+         <a href="{{url('/')}}"> <img src="{{Config::get('app.url')}}/public/img/news_feed.png"
+         width="32" style="margin:5px"  />
+         News Feed</a>
+       </li>
+       <li>
+         <a href="{{url('/friends')}}"> <img src="{{Config::get('app.url')}}/public/img/friends.png"
+         width="32" style="margin:5px"  />
+         Friends </a>
+       </li>
+       <li>
+         <a href="{{url('/messages')}}"> <img src="{{Config::get('app.url')}}/public/img/msg.png"
+         width="32" style="margin:5px"  />
+        Messages</a>
+       </li>
+       <li>
+         <a href="{{url('/findFriends')}}"> <img src="{{Config::get('app.url')}}/public/img/friends.png"
+         width="32" style="margin:5px"  />
+        Find Friends</a>
+       </li>
 
-  </div>
+       <li>
+         <a href="{{url('/jobs')}}"> <img src="{{Config::get('app.url')}}/public/img/jobs.png"
+         width="32" style="margin:5px"  />
+        Find Jobs</a>
+       </li>
+     </ul>
 
-  <div class="col-md-6 col-sm-12 col-xs-12 center-con">
-  @if(Auth::check())
-      <div class="posts_div">
-         <div class="head_har">
-              @{{msg}}
-          </div>
-          <div style="background-color:#fff">
-            <div class="row">
-              <div class="col-md-1 pull-left">
-                <img src="{{url('../')}}/public/img/{{Auth::user()->pic}}"
-                 style="width:50px; margin:5px; padding:5px" class="img-rounded">
-              </div>
-              <div class="col-md-11 pull-right">
-                <form method="post" enctype="multipart/form-data" v-on:submit.prevent="addPost">
-                <textarea v-model="content" id="postText" class="form-control"
-                placeholder="what's on your mind ?"></textarea>
-                <button type="submit" class="btn btn-sm btn-info pull-right" style="margin:10px" id="postBtn">Post</button>
-                </form>
-              </div>
+
+    </div>
+    <!-- left side end -->
+
+    <!-- center content start -->
+    <div class="col-md-6 col-sm-12 col-xs-12 center-con">
+
+        <div class="posts_div">
+           <div class="head_har">
+          <i class="fa fa-edit"></i> @{{msg}}
             </div>
-          </div>
-      </div>
-      @endif
-          <div class="">
-             <!--<div class="head_har">  Posts</div> -->
 
-             <div v-for="post in posts">
-              <div class="col-md-12 col-sm-12 col-xs-12 all_posts">
-                  <div class="col-md-1 pull-left">
-                    <img :src="'{{Config::get('app.url')}}/public/img/' + post.user.pic"
-                    style="width:50px;">
-                  </div>
-
-              <div class="col-md-10" style="margin-left:10px">
+            <div style="background-color:#fff; padding:10px">
               <div class="row">
-               <div class="col-md-11">
-                 <p><a :href="'{{url('profile')}}/' +  post.user.slug" class="user_name"> @{{post.user.name}}</a> <br>
-                 <span style="color:#AAADB3">  @{{ post.created_at | myOwnTime}}
-                 <i class="fa fa-globe"></i></span></p>
-               </div>
-               <div class="col-md-1 pull-right">
-                 @if(Auth::check())
-                  <!-- delete button goes here -->
-                  <a href="#" data-toggle="dropdown" aria-haspopup="true">
-                    <img src="{{Config::get('app.url')}}/public/img/settings.png" width="20">
-                  </a>
-                  <div class="dropdown-menu">
-                    <li><a>some action here</a></li>
-                    <li><a>some more action</a></li>
-                    <div class="dropdown-divider"></div>
-                    <li v-if="post.user_id == '{{Auth::user()->id}}'">
-                      <a @click="deletePost(post.id)">
-                        <i class="fa fa-trash"></i> Delete</a>
-                      </li>
-                  </div>
-                  @endif
-               </div>
-              </div>
-                  </div>
-
-                   <p class="col-md-12" style="color:#000; margin-top:15px; font-family:inherit">
-                     @{{post.content}}
-                   </p>
-                  <div style="padding:10px; border-top:1px solid #ddd" class="col-md-12">                 
-                    <div class="col-md-4">
-                      @if(Auth::check())
-                      <p v-if="post.likes.length!=0" style="color:blue">
-                      <i class="fa fa-thumbs-up"></i>
-                      liked by <b style="color:green"> @{{post.likes.length}} </b> persons
-                     </p>
-
-                      <p v-else class="likeBtn" @click="likePost(post.id)">
-                        no one like <br>
-                        <i class="fa fa-thumbs-up"></i> Like
-                      </p>
-
-                      @endif
-                    </div>
-
-                    <div class="col-md-4">
-                     <p id="showComment">comment</p>
-                    </div>
-  
-                    </div>
-                      
+                <div class="col-md-1 col-sm-2 pull-left">
+                  <img src="{{Config::get('app.url')}}/public/img/{{Auth::user()->pic}}"
+                   style="width:50px; margin:5px;  border-radius:100%">
                 </div>
-                <div id="commentBox">
-				<div class="commet_form">
-				<textarea class="form-control" v-model="commentData"></textarea>
-				<button class="btn btn-success" @click="addComment(post.id)">Send</button>
-				</div>
-				<ul v-for="comment in post.comments">
-				<li>@{{comment.comment}}</li>
-				</ul>
-				</div>
-                
+                <div class="col-md-11 col-sm-10 pull-right">
+                <div v-if="!image">
+                  <form method="post" enctype="multipart/form-data" v-on:submit.prevent="addPost">
+                  <textarea v-model="content" id="postText" class="form-control"
+                  placeholder="what's on your mind ?"></textarea>
+                  <button type="submit" class="btn btn-sm btn-primary
+                   pull-right" style="margin:10px; padding:5 15 5 15; background-color:#4267b2" id="postBtn">Post</button>
+                  </form>
+                  </div>
+
+                <div v-if="!image" style="position:relative;display:inline-block">
+                 <div style="border:1px solid #ddd; border-radius:10px;
+                 background-color:#efefef; padding:3 15 3 10; margin-bottom:10px">
+                 <i class="fa fa-file-image-o"></i> <b>photo</b>
+                  <input type="file" @change="onFileChange" style="position:absolute;
+                  left:0;top:0; opacity:0"/>
+                  </div>
+                  </div>
+
+                  <div v-else>
+
+                <div class="upload_wrap">
+                    <textarea v-model="content" id="postText" class="form-control"
+                    placeholder="what's on your mind ?"></textarea>
+                      <b @click="removeImg" style="right:0;position:absolute;cursor:pointer">Cancel</b>
+                  <img :src="image" style="width:100px; margin:10px;"/><br>
+
+              </div>
+
+                  <button @click="uploadImg" class="btn btn-sm btn-info pull-right" style="margin:10px">Post</button>
+
+
+                  </div>
+
+                </div>
+              </div>
             </div>
-          </div>
-      </div>
-
-  <div class="col-md-3 right-sidebar hidden-sm hidden-xs" >
-      <h3 align="center">Right Sidebar</h3>
-   </div>
-
-
-</div>
-
         </div>
 
-        <script src="public/js/app.js"></script>
+            <div>
+               <!--<div class="head_har">  Posts</div> -->
+
+               <div v-for="post,key in posts" >
+
+                <div class="col-md-12 all_posts">
+
+                    <div class="col-md-1 pull-left">
+                      <img :src="'{{Config::get('app.url')}}/public/img/' + post.user.pic"
+                      style="width:50px; border-radius:100%">
+                    </div>
+
+                <div class="col-md-10" style="margin-left:10px;">
+
+                <div class="row">
+                 <div class="col-md-11">
+
+                   <p><a :href="'{{url('profile')}}/' +  post.user.slug" class="user_name"> @{{post.user.name}}</a> <br>
+                   <span style="color:#AAADB3">  @{{ post.created_at | myOwnTime}}
+                   <i class="fa fa-globe"></i></span></p>
+                 </div>
+                 <div class="col-md-1 pull-right">
+
+                    <!-- delete button goes here -->
+                    <a href="#" data-toggle="dropdown"
+                    style="font-size:40px; color:#ccc; left:-10px"
+                     aria-haspopup="true">...</a>
+                    <div class="dropdown-menu">
+                      <li><a data-toggle="modal" :data-target="'#myModal' + post.id"
+                        @click="openModal(post.id)">Edit</a></li>
+                      <li><a>some more action</a></li>
+                      <div class="dropdown-divider"></div>
+                      <li v-if="post.user_id == '{{Auth::user()->id}}'">
+                        <a @click="deletePost(post.id)">
+                          <i class="fa fa-trash"></i> Delete</a>
+                        </li>
+                    </div>
+
+                    <!-- Modal -->
+                     <div class="modal fade" :id="'myModal'+ post.id" role="dialog">
+                       <div class="modal-dialog">
+
+                         <!-- Modal content-->
+                         <div class="modal-content">
+                           <div class="modal-header">
+                             <button type="button" class="close" data-dismiss="modal">&times;</button>
+                             <h4 class="modal-title">Edit Post</h4>
+                           </div>
+                           <div class="modal-body">
+                             <textarea v-model="updatedContent"
+                             class="form-control">@{{post.content}}</textarea>
+                           </div>
+                           <div class="modal-footer">
+                             <button type="button" class="btn btn-default"
+                             data-dismiss="modal">Close</button>
+
+                              <button type="button" class="btn btn-success"
+                               data-dismiss="modal"
+                               @click="updatePost(post.id)">Save Changes</button>
+                           </div>
+                         </div>
+
+                       </div>
+                     </div>
+                    <!-- Modal -->
+
+                 </div>
+                </div>
+                    </div>
+
+                     <p class="col-md-12" style="color:#000; margin-top:15px; font-family:inherit">
+                       @{{post.content}}
+                       <br>
+                       <img v-if="post.image"
+                       :src="'{{Config::get('app.url')}}/public/img/' + post.image"
+                       style="width:100%"/>
+                     </p>
+                    <div style="padding:10px; border-top:1px solid #ddd" class="col-md-12">
+                      <div class="col-md-4">
+
+                        <p v-if="post.likes.length>0">
+                        liked by <b style="color:green"> @{{post.likes.length}} </b> persons
+                        </p>
+
+                        <p v-else>
+                          <i class="fa fa-thumbs-up likeBtn" @click="likePost(post.id)">Like</i>
+                        </p>
+
+
+                      </div>
+
+                      <div class="col-md-4">
+                      <p @click="commentSeen= !commentSeen" class="commentHand">
+                       Comments <b>(@{{post.comments.length}})</b></p>
+                      </div>
+
+                      </div>
+
+                  </div>
+
+                <div id="commentBox" v-if="commentSeen">
+                  <div class="commet_form">
+                     <!-- send comment-->
+                     <textarea class="form-control" v-model="commentData[key]"></textarea>
+                      <button class="btn btn-success"
+                      @click="addComment(post,key)">Send</button>
+                      </div>
+
+                      <ul v-for="comment in post.comments">
+                        <li v-if="comment.user_id=={{Auth::user()->id}}">
+                          <a href="{{url('profile')}}">You</a>
+                            @{{comment.comment}}</li>
+                            <li v-else>
+                              <a :href="'{{url('/profile')}}/' + post.user.slug">
+                                @{{post.user.name}}
+                              </a>
+                              @{{comment.comment}}
+                            </li>
+                      </ul>
+
+                  </div>
+
+
+              </div>
+
+            </div>
+        </div>
+    <!-- center content end -->
+
+    <!-- right side start -->
+    <div class="col-md-3 right-sidebar hidden-sm hidden-xs" style="position:fixed; right:10px">
+        <h3 align="center">Right Sidebar</h3>
+
+
+    </div>
+    <!-- right side end -->
+    @else
+    <h1 align="center">Please login</h1>
+@endif
+  </div>
+
+</div>
+</div>
+<script src="public/js/app.js"></script>
+
 <script>
 $(document).ready(function(){
 
 $('#postBtn').hide();
+
   $("#postText").hover(function() {
   $('#postBtn').show();
  });
 
 });
+
 </script>
+
     </body>
 </html>

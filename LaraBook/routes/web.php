@@ -1,4 +1,6 @@
 <?php
+
+Route::post('search', 'PostsController@search');
 Route::get('try',function(){
 	return App\post::with('user','likes','comments')->get();
 });
@@ -7,13 +9,24 @@ Route::post('sendNewMessage', 'ProfileController@sendNewMessage');
 Route::post('/sendMessage', 'ProfileController@sendMessage');
 
 Route::get('/', function () {
-  $posts = App\post::with('user','likes','comments')->orderBy('created_at','DESC')->get();
+  $posts = App\post::with('user','likes','comments')
+	->orderBy('created_at','DESC')
+	->get();
   return view('welcome', compact('posts'));
   });
 
 Route::get('/posts', function () {
-      return App\post::with('user','likes','comments')->orderBy('created_at','DESC')->get();
+      return App\post::with('user','likes','comments')
+			->orderBy('created_at','DESC')
+			->get();
 });
+
+Route::get('posts/{id}', function($id){
+	 $pData = App\post::where('id',$id)->get();
+	 echo $pData[0]->content;
+});
+
+Route::post('updatePost/{id}', 'PostsController@updatePost');
 
 Route::post('addPost', 'PostsController@addPost');
 Auth::routes();
@@ -88,6 +101,12 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         Route::get('/getMessages/{id}', function($id){
+					//update cov status
+					$update_status = DB::table('conversation')->where('id',$id)
+					->update([
+						'status' => 0 // now read by user
+					]);
+
           $userMsg = DB::table('messages')
           ->join('users', 'users.id','messages.user_from')
           ->where('messages.conversation_id', $id)->get();
@@ -102,7 +121,11 @@ Route::group(['middleware' => 'auth'], function () {
         //like post
         Route::get('/likePost/{id}','PostsController@likePost');
 		//add comments
-		Route::post('addComment', 'PostsController@addComment');
+    Route::post('addComment', 'PostsController@addComment');
+
+    //save image
+    Route::post('saveImg', 'PostsController@saveImg');
+
 });
 Route::group(['prefix' => 'company', 'middleware' => ['auth', 'company']], function () {
  Route::get('/','companyController@index');
